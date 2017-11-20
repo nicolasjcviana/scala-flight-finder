@@ -1,17 +1,17 @@
-import scalaj.http.{Http, HttpResponse}
-
 object Main {
+
     def main(args: Array[String]): Unit = {
-        val response: HttpResponse[String] = Http("https://www.googleapis.com/qpxExpress/v1/trips/search?key=AIzaSyAtsyWv_klFnBusLbCZMtX4uDW-QjRoXrc")
-            .header("Content-Type", "application/json")
-            .header("Accept", "application/json")
-            .postData("{\n  \"request\": {\n    \"passengers\": {\n      \"adultCount\": 1\n    },\n    \"slice\": [\n      {\n        \"origin\": \"GRU\",\n        \"destination\": \"FRA\",\n        \"date\": \"2018-07-01\"\n      },\n      {\n        \"origin\": \"FRA\",\n        \"destination\": \"GRU\",\n        \"date\": \"2018-07-15\"\n      }\n    ]\n  }\n}")
-            .timeout(60 * 1000, 60 * 1000)
-            .asString
+        //val json: String = scala.io.Source.fromFile("C:\\__balaio\\putamerda.json").getLines.mkString
+        //val res: TripsSearchResponse = TripsSearchResponse.fromJson(json)
 
-        //println(response.body.length)
-        val res: TripsSearchResponse = TripsSearchResponse.fromJson(response.body)
+        //carregas as configurações da aplicação
+        val settingsJson = scala.io.Source.fromFile("settings.json").getLines.mkString
+        val settings = ApplicationSettings.fromJson(settingsJson)
 
-        println(res.trips.requestId)
+        //cria um flight tracker
+        val tracker: FlightTracker = new FlightTracker(settings)
+        //e bota pra moer
+        tracker.run()
     }
+
 }

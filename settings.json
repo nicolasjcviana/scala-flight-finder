@@ -1,0 +1,13 @@
+{
+    "qpx": {
+        "endpoint": "https://www.googleapis.com/qpxExpress/v1/trips/search?key=AIzaSyAtsyWv_klFnBusLbCZMtX4uDW-QjRoXrc",
+        "delayBetweenRequests": 3600000,
+        "flight": {
+            "departureAirport": "GRU",
+            "arrivalAirport": "FRA",
+            "departureDate": "2018-12-06",
+            "returnDate": "2018-12-23"
+        }
+    },
+    "dbConnectionString": "jdbc:postgresql://192.168.99.100:5432/flights?user=postgres&password=root"
+}

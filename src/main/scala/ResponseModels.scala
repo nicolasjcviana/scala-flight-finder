@@ -1,14 +1,10 @@
-import java.time.ZonedDateTime
-
 import org.json4s.DefaultFormats
 import org.json4s.jackson.JsonMethods
 
 object TripsSearchResponse {
     implicit val jsonDefaultFormats = DefaultFormats
 
-    def fromJson(json: String): TripsSearchResponse = {
-        return JsonMethods.parse(json).extract[TripsSearchResponse]
-    }
+    def fromJson(json: String): TripsSearchResponse = JsonMethods.parse(json).extract[TripsSearchResponse]
 }
 
 //main response object
@@ -84,7 +80,7 @@ case class SegmentInfo(
     bookingCodeCount: Int,
     marriedSegmentGroup: String,
     leg: Array[LegInfo],
-    connectionDuration: Int
+    connectionDuration: Option[Int]
 )
 
 //root.tripOption[n].slice[n].segment[n].flight
@@ -96,15 +92,15 @@ case class SegmentFlightInfo(
 //root.tripOption[n].slice[n].segment[n].leg[n]
 case class LegInfo(
     aircraft: String,
-    arrivalTime: ZonedDateTime,
-    departureTime: ZonedDateTime,
+    arrivalTime: String,
+    departureTime: String,
     origin: String,
     destination: String,
-    originTerminal: String,
-    destinationTerminal: String,
+    originTerminal: Option[String],
+    destinationTerminal: Option[String],
     duration: Int,
     mileage: Int,
-    meal: String
+    meal: Option[String]
 )
 
 //root.tripOption[n].pricing[n]
@@ -113,8 +109,7 @@ case class PricingInfo(
     saleTaxTotal: String,
     saleTotal: String,
     tax: Array[TaxInfo],
-    fareCalculation: String,
-    refundable: Boolean
+    fareCalculation: String
 )
 
 //root.tripOption[n].pricing[n].tax[n]
@@ -122,6 +117,6 @@ case class TaxInfo(
     id: String,
     chargeType: String,
     code: String,
-    country: String,
+    country: Option[String],
     salePrice: String
 )
