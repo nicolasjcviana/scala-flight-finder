@@ -7,9 +7,13 @@ import scala.concurrent.{Await, Future}
 
 class FlightTracker(settings: ApplicationSettings) {
 
+    /**
+      * Método principal do FlightTracker, responsável por rodar o processo
+      * de monitoramento de preços em background
+      */
     def run(): Unit = {
         //rodar para sempre
-        /*while (true) {
+        while (true) {
             //faz a requisição la no qpx
             val response : TripsSearchResponse = this.sendQpxRequest()
 
@@ -22,31 +26,32 @@ class FlightTracker(settings: ApplicationSettings) {
             for (flight <- response.trips.tripOption) {
                 this.storeFlightOption(flight)
             }
-        }*/
 
-        val configuration = URLParser.parse(settings.dbConnectionString)
-        val connection: Connection = new PostgreSQLConnection(configuration)
-
-        Await.result(connection.connect, Duration.Inf)
-
-        val future: Future[QueryResult] = connection.sendQuery("SELECT 'Guilherme' as nene, 20 as age")
-
-        val result = Await.result(future, Duration.Inf)
-
-        println(result.rows.get(0)("nene"))
-        println(result.rows.get(0)("age"))
-
-        connection.disconnect
+            //dorme o tempo necessário até a próxima consulta
+            Thread.sleep(settings.qpx.delayBetweenRequests)
+        }
     }
 
+    /**
+      * Insere na base as opções de vôo na base de dados
+      * @param flight Opção de vôo
+      */
     private def storeFlightOption(flight: TripOption): Unit = {
         //TODO: Implementar isso (salvar no pg)
     }
 
+    /**
+      * Faz upsert da estrutura do vôos disponíveis
+      * @param data Estrutura dos vôos
+      */
     private def storeFlightStructure(data: FlightData): Unit = {
         //TODO: Implementar isso (salvar no pg)
     }
 
+    /**
+      * Envia uma requisição para a QPX API
+      * @return Objeto do tipo TripsSearchResponse contendo a resposta da QPX API
+      */
     private def sendQpxRequest(): TripsSearchResponse = {
         val response: HttpResponse[String] = Http(settings.qpx.endpoint)
             .header("Content-Type", "application/json")
@@ -58,20 +63,35 @@ class FlightTracker(settings: ApplicationSettings) {
         TripsSearchResponse.fromJson(response.body)
     }
 
+    /**
+      * Monta um JSON para ser usado como corpo da requisição que será enviada para a QPX API
+      * @return String contendo um JSON
+      */
     private def buildQpxPostData(): String = {
         val slice = new Array[RequestSliceInfo](2)
         //vôo de ida
-        slice(0) = RequestSliceInfo(settings.qpx.flight.departureAirport, settings.qpx.flight.arrivalAirport, settings.qpx.flight.departureDate)
-        //vôo de volta
-        slice(1) = RequestSliceInfo(settings.qpx.flight.arrivalAirport, settings.qpx.flight.departureAirport, settings.qpx.flight.returnDate)
+        slice(0) = RequestSliceInfo(
+            settings.qpx.flight.departureAirport,
+            settings.qpx.flight.arrivalAirport,
+            settings.qpx.flight.departureDate)
 
+        //vôo de volta
+        slice(1) = RequestSliceInfo(
+            settings.qpx.flight.arrivalAirport,
+            settings.qpx.flight.departureAirport,
+            settings.qpx.flight.returnDate)
+
+        //monta a request usando as respectivas case classes
         val request: QpxRequest = QpxRequest(
             QpxRequestInfo(
+                //modelo solicitando passagem para uma pessoa apenas
                 RequestPassengersInfo(1),
+                //array de pedaços do vôo desejado
                 slice
             )
         )
 
+        //usa o método estático do objeto QpxRequest para converter a case class em JSON
         QpxRequest.toJson(request)
     }
 
