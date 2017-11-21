@@ -24,7 +24,7 @@ create table aircraft (
 
 create table tax_kind (
 	code varchar(10) not null,
-	name varchar(50) not null,
+	name varchar(100) not null,
 	
 	constraint tax_kind_pk primary key (code)
 );
@@ -36,12 +36,22 @@ create table company (
 	constraint company_pk primary key (code)
 );
 
-create table trip_option (
-	id         varchar(50) not null,
-	sale_total varchar(20) not null,
-	slice      jsonb       null,
-	pricing    jsonb       null,
-	timestamp  timestamp   not null default current_timestamp,
-	
-	constraint trip_option_pk primary key (id)
+create table request (
+    id          varchar(100) not null,
+    begun_at    timestamp    not null,
+    finished_at timestamp    null,
+    
+    constraint request_pk primary key (id)
 );
+
+create table trip_option (
+    request_id varchar(100) not null,
+	trip_id    varchar(50)  not null,
+	sale_total varchar(20)  not null,
+	slice      jsonb        null,
+	pricing    jsonb        null,
+	
+	constraint trip_option_pk primary key (request_id, trip_id),
+	constraint trip_option_request_fk foreign key (request_id) references request (id)
+);
+create index trip_option_request_idx on trip_option (request_id);
