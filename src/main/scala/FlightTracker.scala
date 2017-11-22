@@ -120,25 +120,15 @@ class FlightTracker(settings: ApplicationSettings) {
 
         Await.result(connection.connect, Duration.Inf)
 
-        for (city <- data.city) {
-            this.upsertCity(connection, city)
-        }
+        for (city <- data.city) this.upsertCity(connection, city)
 
-        for (airport <- data.airport) {
-            this.upsertAirport(connection, airport)
-        }
+        for (airport <- data.airport) this.upsertAirport(connection, airport)
 
-        for (aircraft <- data.aircraft) {
-            this.upsertAircraft(connection, aircraft)
-        }
+        for (aircraft <- data.aircraft) this.upsertAircraft(connection, aircraft)
 
-        for (tax <- data.tax) {
-            this.upsertTaxKind(connection, tax)
-        }
+        for (tax <- data.tax) this.upsertTaxKind(connection, tax)
 
-        for (carrier <- data.carrier) {
-            this.upsertCompany(connection, carrier)
-        }
+        for (carrier <- data.carrier) this.upsertCompany(connection, carrier)
 
         connection.disconnect
     }
